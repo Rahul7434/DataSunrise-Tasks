@@ -39,3 +39,39 @@ Audit Logs in the Instance’s settings
 26.You can find Blob container name in Storage Accounts - Your account → Containers of your Azure settings
 26.Create some Audit Rules to get the logs. For auditing results, navigate to Audit → Transactional trails
 ```
+##### Configuring Audit Trail for auditing MS Azure PostgreSQL database queries
+To configure DataSunrise to receive audit results of Azure-hosted PostgreSQL database activity, do the following:
+```
+1.Navigate to App registrations → New registration and register your application. Note that Redirect URI (optional) is not
+required
+2.Navigate to your app registration. Select Certificates and secrets
+3.At Client secrets, click New client secret to create a new secret. Save the VALUE key
+4.At API permissions select Add permission → Azure Storage → Delegated permissions then user_impersonation then
+click Add permissions
+5.Configure your postgresql flexible server’s settings:
+  log_checkpoints = OFF
+  log_destination = CSVLOG or JSON
+  pgaudit.log = ALL
+  shared_preload_libraries = PG_STAT_STATEMENTS, PGAUDIT
+  log_line_prefix = %t-%c-u"%u"u
+
+6.Enable diagnostic settings for your postgresql server using either the Azure portal, CLI, REST API, or PowerShell. The
+log category to select is PostgreSQLLogs. See the next step for a guide on using Azure portal for that
+7.In Azure portal, navigate to Monitoring → Diagnostic settings of your postgresql server. Click Add Dianostic Setting.
+Fill out all the required fields. Select log type PostgreSQLLOgs. In Destination details, select Archive to a storage account
+and select your Storage account. Save the setting
+8.Assign an Azure role for access to BLOB data (Reader and Storage BLOB Data Reader for the app created earlier)
+9.Navigate to Access Control (IAM). Click Add role assignment
+10.Select Reader: Next
+11.Click +Select members and select your app. Review and assign
+12.Click Add role assignment again and select Storage Blob Data Reader
+13.Click +Select Members and select your app. Review and assign
+In DataSunrise, do the following:
+14.Create a postgresql Instance in Configuration → Databases. Select Trailing the DB Audit Logs in the Instance’s settings
+15.Copy ClientID and TenantID from your Azure App
+16.Client Secret is the VALUE mentioned in step 3
+17.You can find Blob container name in Storage Accounts - your account → Containers of your Azure settings
+18.Paste the Server Name, the name of the database server, and the Resource Group Name where the database server is
+located
+19.Create some Audit Rules to get the logs. For auditing results, navigate to Audit → Transactional trails
+```
